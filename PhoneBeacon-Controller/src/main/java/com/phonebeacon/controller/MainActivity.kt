@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                         listOf("CHIME" to "Play chime", "FLASH" to "Pulse flashlight", "WHITE" to "White screen", "STOP" to "Stop alert").forEach { (command, label) ->
                             Button(
                                 modifier = Modifier.fillMaxWidth(),
-                                enabled = !busy && code != "Not generated",
+                                enabled = !busy,
                                 onClick = {
                                     busy = true
                                     scope.launch {
