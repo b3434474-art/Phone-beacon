@@ -35,13 +35,15 @@ returns text language plpgsql security definer set search_path = public, extensi
 declare
   v_pairing_id uuid;
   v_code text;
+  v_random bytea;
 begin
   if length(coalesce(p_controller_secret,'')) < 32 then raise exception 'Invalid controller secret'; end if;
   insert into phonebeacon_pairings(controller_secret_hash)
   values (encode(extensions.digest(p_controller_secret, 'sha256'),'hex'))
   returning id into v_pairing_id;
   loop
-    v_code := lpad((floor(random()*1000000))::int::text, 6, '0');
+    v_random := extensions.gen_random_bytes(4);
+    v_code := lpad(((get_byte(v_random,0)::bigint * 16777216 + get_byte(v_random,1)::bigint * 65536 + get_byte(v_random,2)::bigint * 256 + get_byte(v_random,3)::bigint) % 1000000)::text, 6, '0');
     exit when not exists (
       select 1 from phonebeacon_pair_codes
       where code_hash = encode(extensions.digest(v_code, 'sha256'),'hex')
