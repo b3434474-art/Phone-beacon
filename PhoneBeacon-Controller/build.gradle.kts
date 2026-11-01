@@ -4,6 +4,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val phoneBeaconUrl = providers.gradleProperty("PHONEBEACON_SUPABASE_URL").orElse("").get()
+val phoneBeaconAnonKey = providers.gradleProperty("PHONEBEACON_SUPABASE_ANON_KEY").orElse("").get()
+
 android {
     namespace = "com.phonebeacon.controller"
     compileSdk = 35
@@ -12,11 +15,13 @@ android {
         applicationId = "com.phonebeacon.controller"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
     }
 
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
+    buildConfigField("String", "SUPABASE_URL", "\"$phoneBeaconUrl\"")
+    buildConfigField("String", "SUPABASE_ANON_KEY", "\"$phoneBeaconAnonKey\"")
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
