@@ -37,9 +37,6 @@ declare
   v_code text;
 begin
   if length(coalesce(p_controller_secret,'')) < 32 then raise exception 'Invalid controller secret'; end if;
-  update phonebeacon_pairings
-     set active = false
-   where controller_secret_hash = encode(extensions.digest(p_controller_secret, 'sha256'),'hex');
   insert into phonebeacon_pairings(controller_secret_hash)
   values (encode(extensions.digest(p_controller_secret, 'sha256'),'hex'))
   returning id into v_pairing_id;
@@ -81,6 +78,7 @@ begin
   select id into v_pairing_id from phonebeacon_pairings
    where controller_secret_hash = encode(extensions.digest(coalesce(p_controller_secret,''),'sha256'),'hex')
      and active = true and companion_secret_hash is not null
+   order by created_at desc
    limit 1;
   if v_pairing_id is null then return false; end if;
   insert into phonebeacon_commands(pairing_id, command) values (v_pairing_id, p_command);
